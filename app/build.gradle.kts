@@ -33,6 +33,7 @@ android {
 
 dependencies {
 
+    implementation("io.minio:minio:8.3.7")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
