@@ -1,0 +1,206 @@
+package com.example.miniotester;
+
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.provider.OpenableColumns;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import java.io.InputStream;
+
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.errors.MinioException;
+
+public class MainActivity extends AppCompatActivity {
+
+    //variable to hold a tag to search for in logcat
+    private static final String TAG = "MinioHelloWorld";
+    //setting variable to the end point to exaba server
+    private static final String ENDPOINT = "https://z4-n1.dv.exaba.io:9000";
+    //variable to hold to public access key
+    private static final String ACCESS_KEY = "JC5QAFBT2OUHJRJJ";
+    //variable to hold to private access key
+    private static final String SECRET_KEY = "IeQWblMFbQ3RjAjEBMCIOqwSSbYgs2PdMicxwGjR";
+    //variable to the name of the bucket selected
+    private static String BUCKET_NAME = "";
+    //variable for image selection process
+    private static final int PICK_IMAGE_REQUEST = 1;
+
+    private Button uploadButton;
+    private RadioGroup rg1;
+
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+
+        rg1 = findViewById(R.id.rg1);
+        uploadButton = findViewById(R.id.uploadButton);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        // Set the upload button onClickListener
+        uploadButton.setOnClickListener(view -> {
+            int selectedID = rg1.getCheckedRadioButtonId();
+
+            if (selectedID == -1) {  // No radio button selected
+                Toast.makeText(this, "Please select a bucket", Toast.LENGTH_SHORT).show();
+            } else {
+                //set the variable to the chosen bucket from the radio group
+                RadioButton selectedRadioButton = findViewById(selectedID);
+                //getting the name of the bucket from the radio button selected
+                BUCKET_NAME = selectedRadioButton.getText().toString();
+                //open the file explorer
+                openFilePicker();
+            }
+        });
+        // Display buckets on load
+        new MinioDisplayBucketsTask().execute();
+    }
+    //method that runs the file manager
+    private void openFilePicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    //This method checks if a file has been selected in the file manager, if an image has been selected it then calls the image upload method
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            String objectName = getFileName(imageUri);
+            new MinioUploadTask(imageUri, objectName).execute();
+        }
+    }
+
+    //this method gets the file name that was uploaded
+    private String getFileName(Uri uri) {
+        String fileName = "uploaded_image";
+        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (nameIndex != -1) {
+                    fileName = cursor.getString(nameIndex);
+                }
+            }
+        }
+        return fileName;
+    }
+
+    // this method finds all the buckets and displays them to a text view
+    private class MinioDisplayBucketsTask extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... voids) {
+            StringBuilder buckets = new StringBuilder();
+
+            try {
+                MinioClient minioClient = MinioClient.builder()
+                        .endpoint(ENDPOINT)
+                        .credentials(ACCESS_KEY, SECRET_KEY)
+                        .build();
+
+                minioClient.listBuckets().forEach(bucket -> {
+                    Log.d(TAG, "Bucket: " + bucket.name());
+                    buckets.append(bucket.name()).append("\n"); // Append each bucket name with a newline
+                });
+
+            } catch (MinioException e) {
+                Log.e(TAG, "MinIO Exception: " + e.getMessage(), e);
+            } catch (Exception e) {
+                Log.e(TAG, "Error fetching buckets: " + e.getMessage(), e);
+            }
+            return buckets.toString();
+        }
+
+        // this method sets the text view text when the operations are complete
+        @Override
+        protected void onPostExecute(String result) {
+            //tv1.setText("Buckets:\n" + result);
+        }
+    }
+
+    //This class uploads the chosen file to the bucket
+    private class MinioUploadTask extends AsyncTask<Void, Void, Boolean> {
+
+        //declaring variables to hold important values
+        private final Uri imageUri;
+        private final String objectName;
+
+        //this constructor initialises the image and the object names
+        public MinioUploadTask(Uri imageUri, String objectName) {
+            this.imageUri = imageUri;
+            this.objectName = objectName;
+        }
+
+        //This method puts the file into the bucket
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try (InputStream inputStream = getContentResolver().openInputStream(imageUri)) {
+                if (inputStream == null) return false;
+
+                //buiding the minIO client
+                MinioClient minioClient = MinioClient.builder()
+                        .endpoint(ENDPOINT)
+                        .credentials(ACCESS_KEY, SECRET_KEY)
+                        .build();
+
+                // uploading the image
+                minioClient.putObject(
+                        PutObjectArgs.builder()
+                                .bucket(BUCKET_NAME)
+                                .object(objectName)
+                                .stream(inputStream, inputStream.available(), -1)
+                                .contentType("image/jpeg") // Adjust content type if necessary
+                                .build()
+                );
+
+                Log.d(TAG, "Image uploaded successfully: " + objectName);
+                return true;
+
+            } catch (MinioException e) {
+                Log.e(TAG, "MinIO Exception: " + e.getMessage(), e);
+            } catch (Exception e) {
+                Log.e(TAG, "Error uploading image: " + e.getMessage(), e);
+            }
+            return false;
+        }
+
+        //this method displays a toast to the user to tell them whether the upload was successful or not
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                Toast.makeText(MainActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
+                new MinioDisplayBucketsTask().execute(); // Refresh the bucket list after upload
+            } else {
+                Toast.makeText(MainActivity.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+}
