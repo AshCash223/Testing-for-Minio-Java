@@ -91,35 +91,24 @@ public class MainActivity extends AppCompatActivity {
         // this method uploads an image to the bucket. It is passed the cliient and a file name.
         private void uploadImage(MinioClient minioClient, String objectName) {
             try {
-                // creating an input stream that opens the file
-                @SuppressLint("ResourceType") InputStream inputStream = getResources().openRawResource(R.drawable.th);
-                //creating a temporary file
-                File tempFile = File.createTempFile("temp_image", ".jpeg", getCacheDir());
-                FileOutputStream out = new FileOutputStream(tempFile);
-                //creating a buffer that sends 1024 bytes across.
-                byte[] buffer = new byte[1024];
-                int length;
-                //while there are still bytes to send
-                while ((length = inputStream.read(buffer)) > 0) {
-                    //send the bytes
-                    out.write(buffer, 0, length);
-                }
-                //close the FOS and the IS
-                out.close();
-                inputStream.close();
+                // Get the image resource as an InputStream directly
+                @SuppressLint("ResourceType") InputStream inputStream = getResources().openRawResource(R.drawable.th); // Ensure R.drawable.th is your actual image
 
-                //code to put the object into the bucket
-                minioClient.putObject(PutObjectArgs.builder()
-                        .bucket(BUCKET_NAME)
-                        .object(objectName)
-                        .stream(new FileInputStream(tempFile), tempFile.length(), -1)
-                        .contentType("image/jpeg")
-                        .build());
+                // Upload the image directly from the InputStream
+                minioClient.putObject(
+                        PutObjectArgs.builder()
+                                .bucket(BUCKET_NAME)
+                                .object(objectName)
+                                .stream(inputStream, inputStream.available(), -1)
+                                .contentType("image/jpeg") // Adjust content type if necessary
+                                .build()
+                );
 
-                //documenting to the log that the image was sent
                 Log.d(TAG, "Image uploaded successfully: " + objectName);
                 runOnUiThread(() -> Toast.makeText(MainActivity.this, "Image uploaded: " + objectName, Toast.LENGTH_SHORT).show());
-                tempFile.delete();
+
+                // Close the input stream after uploading
+                inputStream.close();
 
             } catch (Exception e) {
                 Log.e(TAG, "Error uploading image: " + e.getMessage(), e);
