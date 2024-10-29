@@ -1,6 +1,7 @@
 package com.example.miniotester;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +24,9 @@ public class Settings extends AppCompatActivity {
     }
 
 
+    public void addBucketSettings(View view) {
+    }
 
-
-
+    public void removeBucketSettings(View view) {
+    }
 }
