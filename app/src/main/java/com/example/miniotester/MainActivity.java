@@ -3,6 +3,7 @@ package com.example.miniotester;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,11 +25,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String ACCESS_KEY = "JC5QAFBT2OUHJRJJ";
     private static final String SECRET_KEY = "IeQWblMFbQ3RjAjEBMCIOqwSSbYgs2PdMicxwGjR";
 
+    private TextView tv1;  // Declare TextView variable
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        // Initialize tv1 after setting the content view
+        tv1 = findViewById(R.id.tv1);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -40,10 +46,12 @@ public class MainActivity extends AppCompatActivity {
         new MinioTask().execute();
     }
 
-    private class MinioTask extends AsyncTask<Void, Void, Void> {
+    private class MinioTask extends AsyncTask<Void, Void, String> {
+
         @Override
-        protected Void doInBackground(Void... voids) {
-            // Initialising MinIO client
+        protected String doInBackground(Void... voids) {
+            StringBuilder buckets = new StringBuilder();
+
             try {
                 MinioClient minioClient = MinioClient.builder()
                         .endpoint(ENDPOINT)
@@ -53,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 // List buckets and log their names
                 minioClient.listBuckets().forEach(bucket -> {
                     Log.d(TAG, "Bucket: " + bucket.name());
+                    buckets.append(bucket.name()).append("\n"); // Append each bucket name with a newline
                 });
 
             } catch (MinioException e) {
@@ -64,7 +73,13 @@ public class MainActivity extends AppCompatActivity {
             } catch (InvalidKeyException e) {
                 Log.e(TAG, "Invalid Key: " + e.getMessage(), e);
             }
-            return null;
+            return buckets.toString(); // Return the concatenated bucket names
+        }
+
+        @Override
+        protected void onPostExecute(String result) { // Override onPostExecute
+            super.onPostExecute(result);
+            tv1.setText(result); // Update the TextView with bucket names
         }
     }
 }
