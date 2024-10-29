@@ -37,11 +37,11 @@ public class MainActivity extends AppCompatActivity {
     //variable to hold to private access key
     private static final String SECRET_KEY = "IeQWblMFbQ3RjAjEBMCIOqwSSbYgs2PdMicxwGjR";
     //variable to the name of the bucket selected
-    private static String BUCKET_NAME = "";
+    private static final String BUCKET_NAME = "test";
     //variable for image selection process
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    private Button uploadButton;
+    private Button syncButton;
     private RadioGroup rg1;
 
 
@@ -53,8 +53,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        rg1 = findViewById(R.id.rg1);
-        uploadButton = findViewById(R.id.uploadButton);
+        syncButton = findViewById(R.id.syncButton);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -63,19 +62,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Set the upload button onClickListener
-        uploadButton.setOnClickListener(view -> {
-            int selectedID = rg1.getCheckedRadioButtonId();
+        syncButton.setOnClickListener(view -> {
 
-            if (selectedID == -1) {  // No radio button selected
-                Toast.makeText(this, "Please select a bucket", Toast.LENGTH_SHORT).show();
-            } else {
-                //set the variable to the chosen bucket from the radio group
-                RadioButton selectedRadioButton = findViewById(selectedID);
-                //getting the name of the bucket from the radio button selected
-                BUCKET_NAME = selectedRadioButton.getText().toString();
-                //open the file explorer
-                openFilePicker();
-            }
         });
         // Display buckets on load
         new MinioDisplayBucketsTask().execute();
