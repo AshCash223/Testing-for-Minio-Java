@@ -88,6 +88,29 @@
         </LinearLayout>
 
 
+        <EditText
+            android:id="@+id/accesskeyField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Please input your access key"
+            android:layout_weight="5"
+            />
+        <EditText
+            android:id="@+id/secretskeyField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Please input your secrets key"
+            android:layout_weight="5"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Update keys"
+            android:onClick="updateKeys"
+            />
+
+
+
     </LinearLayout>
 
 

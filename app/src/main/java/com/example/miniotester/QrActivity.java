@@ -1,12 +1,18 @@
 package com.example.miniotester;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.io.InputStream;
+import java.net.URL;
 
 public class QrActivity extends AppCompatActivity {
 
@@ -21,4 +27,29 @@ public class QrActivity extends AppCompatActivity {
             return insets;
         });
     }
+
+
+    public Drawable LoadImageFromWebOperations(String url) {
+        try {
+            // Allow network operation on the main thread
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+            // Get InputStream from the URL
+            InputStream is = (InputStream) new URL(url).getContent();
+
+            // Convert InputStream to Drawable
+            Drawable d = Drawable.createFromStream(is, "src name");
+
+            // Log success
+            Log.d("detail", "no exception");
+            return d;
+
+        } catch (Exception e) {
+            // Log any exception that occurs
+            Log.d("detail", " exception");
+            return null;
+        }
+    }
+
 }
