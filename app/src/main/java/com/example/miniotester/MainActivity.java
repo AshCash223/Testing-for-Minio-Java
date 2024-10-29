@@ -42,11 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private Button syncButton;
-    private RadioGroup rg1;
-
-
-
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,10 +57,10 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Set the upload button onClickListener
         syncButton.setOnClickListener(view -> {
-
+            openFilePicker();
         });
+
         // Display buckets on load
         new MinioDisplayBucketsTask().execute();
     }
