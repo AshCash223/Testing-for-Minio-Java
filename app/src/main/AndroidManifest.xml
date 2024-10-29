@@ -15,9 +15,12 @@
         android:theme="@style/Theme.MinioTester"
         tools:targetApi="31">
         <activity
+<<<<<<< HEAD
             android:name=".Settings"
             android:exported="false" />
         <activity
+=======
+>>>>>>> 40afe34fd6ddd3e7db6d3d7e5dae7ffc3bf33983
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
