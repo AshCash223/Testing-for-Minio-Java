@@ -33,6 +33,8 @@ android {
 
 dependencies {
 
+    implementation ("androidx.appcompat:appcompat:1.3.1")
+    implementation ("org.codehaus.woodstox:woodstox-core-asl:4.2.0")
     implementation("io.minio:minio:8.3.7")
     implementation(libs.appcompat)
     implementation(libs.material)

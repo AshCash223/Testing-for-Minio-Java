@@ -36,17 +36,34 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // ning the MinIO connection in a background task
+        // Running the MinIO connection in a background task
         new MinioTask().execute();
     }
+
     private class MinioTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
             // Initialising MinIO client
-            MinioClient minioClient = MinioClient.builder()
-                    .endpoint(ENDPOINT)
-                    .credentials(ACCESS_KEY, SECRET_KEY)
-                    .build();
+            try {
+                MinioClient minioClient = MinioClient.builder()
+                        .endpoint(ENDPOINT)
+                        .credentials(ACCESS_KEY, SECRET_KEY)
+                        .build();
+
+                // List buckets and log their names
+                minioClient.listBuckets().forEach(bucket -> {
+                    Log.d(TAG, "Bucket: " + bucket.name());
+                });
+
+            } catch (MinioException e) {
+                Log.e(TAG, "MinIO Exception: " + e.getMessage(), e);
+            } catch (IOException e) {
+                Log.e(TAG, "IO Exception: " + e.getMessage(), e);
+            } catch (NoSuchAlgorithmException e) {
+                Log.e(TAG, "No Such Algorithm: " + e.getMessage(), e);
+            } catch (InvalidKeyException e) {
+                Log.e(TAG, "Invalid Key: " + e.getMessage(), e);
+            }
             return null;
         }
     }
