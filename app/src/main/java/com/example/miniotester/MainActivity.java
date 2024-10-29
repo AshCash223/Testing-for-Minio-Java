@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private Button syncButton;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,8 +62,12 @@ public class MainActivity extends AppCompatActivity {
             openFilePicker();
         });
 
-        // Display buckets on load
-        new MinioDisplayBucketsTask().execute();
+    }
+    public void onClickSettings(View view) {
+        Intent intent = new Intent(MainActivity.this, Settings.class);
+        //starting the activity with the intent
+        startActivity(intent);
+
     }
     //method that runs the file manager
     private void openFilePicker() {
@@ -71,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
-
     //This method checks if a file has been selected in the file manager, if an image has been selected it then calls the image upload method
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -83,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
             new MinioUploadTask(imageUri, objectName).execute();
         }
     }
-
     //this method gets the file name that was uploaded
     private String getFileName(Uri uri) {
         String fileName = "uploaded_image";
@@ -98,37 +101,6 @@ public class MainActivity extends AppCompatActivity {
         return fileName;
     }
 
-    // this method finds all the buckets and displays them to a text view
-    private class MinioDisplayBucketsTask extends AsyncTask<Void, Void, String> {
-        @Override
-        protected String doInBackground(Void... voids) {
-            StringBuilder buckets = new StringBuilder();
-
-            try {
-                MinioClient minioClient = MinioClient.builder()
-                        .endpoint(ENDPOINT)
-                        .credentials(ACCESS_KEY, SECRET_KEY)
-                        .build();
-
-                minioClient.listBuckets().forEach(bucket -> {
-                    Log.d(TAG, "Bucket: " + bucket.name());
-                    buckets.append(bucket.name()).append("\n"); // Append each bucket name with a newline
-                });
-
-            } catch (MinioException e) {
-                Log.e(TAG, "MinIO Exception: " + e.getMessage(), e);
-            } catch (Exception e) {
-                Log.e(TAG, "Error fetching buckets: " + e.getMessage(), e);
-            }
-            return buckets.toString();
-        }
-
-        // this method sets the text view text when the operations are complete
-        @Override
-        protected void onPostExecute(String result) {
-            //tv1.setText("Buckets:\n" + result);
-        }
-    }
 
     //This class uploads the chosen file to the bucket
     private class MinioUploadTask extends AsyncTask<Void, Void, Boolean> {
@@ -181,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean success) {
             if (success) {
                 Toast.makeText(MainActivity.this, "Image uploaded successfully!", Toast.LENGTH_SHORT).show();
-                new MinioDisplayBucketsTask().execute(); // Refresh the bucket list after upload
             } else {
                 Toast.makeText(MainActivity.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
             }
