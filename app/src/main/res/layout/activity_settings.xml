@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Settings">
+    tools:context=".Settings"
+    android:background="@color/cyanish">
 
 
     <LinearLayout
@@ -15,52 +16,37 @@
         android:gravity="center"
         >
 
-        <TextView
+        <ImageView
+            android:gravity="center"
+            android:textAlignment="center"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:textStyle="bold"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-
-            android:text="Change Bucket"
-            />
+            android:src="@drawable/exaba"/>
 
         <RadioGroup
             android:id="@+id/bucketGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_weight="2"
+            android:layout_weight="0">
 
-            >
             <RadioButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Bucket 1"
-                android:id="@+id/dummybucket1"/>
+                android:text="test"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                android:id="@+id/b1"/>
             <RadioButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Bucket 2"
-                android:id="@+id/dummybucket2"/>
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="Bucket 3"
-                android:id="@+id/dummybucket3"/>
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="Bucket 4"
-                android:id="@+id/dummybucket4"/>
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                android:text="Bucket 5"
-                android:id="@+id/dummybucket5"/>
+                android:text="interns"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                android:id="@+id/b2"/>
 
         </RadioGroup>
 
@@ -68,20 +54,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            >
+            android:padding="10dp">
+
             <Button
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:text="Add Bucket"
                 android:onClick="addBucketSettings"
                 />
             <Button
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5dp"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                 android:text="Remove Bucket"
                 android:onClick="removeBucketSettings"
                 />
@@ -92,31 +81,36 @@
             android:id="@+id/accesskeyField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Please input your access key"
-            android:layout_weight="5"
+            android:textColor="@color/white"
+            android:textColorHint="@color/cardview_light_background"
+            android:hint="Please input your access key"
+            android:layout_weight="1"
             />
         <EditText
             android:id="@+id/secretskeyField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Please input your secrets key"
-            android:layout_weight="5"
+            android:textColor="@color/white"
+            android:textColorHint="@color/cardview_light_background"
+            android:hint="Please input your secrets key"
+            android:layout_weight="1"
             />
         <EditText
             android:id="@+id/endpointField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Please input your endpoint"
-            android:layout_weight="5"
+            android:textColor="@color/white"
+            android:textColorHint="@color/cardview_light_background"
+            android:hint="Please input your endpoint"
+            android:layout_weight="1"
             />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             android:text="Update keys"
             android:onClick="updateKeys"
             />
-
-
 
     </LinearLayout>
 
