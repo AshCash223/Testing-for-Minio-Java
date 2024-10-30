@@ -1,6 +1,7 @@
 package com.example.miniotester;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -70,13 +71,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, Settings.class);
         //starting the activity with the intent
         startActivity(intent);
-
     }
     //method that runs the file manager
     private void openFilePicker() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
     //This method checks if a file has been selected in the file manager, if an image has been selected it then calls the image upload method
@@ -84,24 +85,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri imageUri = data.getData();
-            ArrayList<String> objectName = getFileName(imageUri);
-            new MinioUploadTask(imageUri, objectName).execute();
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getClipData() != null) {
+
+            ClipData filess = data.getClipData();
+            for(int x = 0; x< filess.getItemCount(); x++)
+            {
+                Uri imageUri = filess.getItemAt(x).getUri();
+                String objectName = getFileName(imageUri);
+                new MinioUploadTask(imageUri, objectName).execute();
+            }
         }
     }
     //this method gets the file name that was uploaded
-    private ArrayList<String> getFileName(Uri uri) {
-        ArrayList<String> files = new ArrayList<>();
+    private String getFileName(Uri uri) {
+        String file = "File";
         try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 if (nameIndex != -1) {
-                    files.add(cursor.getString(nameIndex));
+                    file = cursor.getString(nameIndex);
                 }
             }
         }
-        return files;
+        return file;
     }
 
 
@@ -110,10 +116,10 @@ public class MainActivity extends AppCompatActivity {
 
         //declaring variables to hold important values
         private final Uri imageUri;
-        private final ArrayList<String> objectName;
+        private final String objectName;
 
         //this constructor initialises the image and the object names
-        public MinioUploadTask(Uri imageUri, ArrayList<String> objectName) {
+        public MinioUploadTask(Uri imageUri, String objectName) {
             this.imageUri = imageUri;
             this.objectName = objectName;
         }
@@ -121,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         //This method puts the file into the bucket
         @Override
         protected Boolean doInBackground(Void... voids) {
-            try (InputStream inputStream = getContentResolver().openInputStream(imageUri)) {
+            try (InputStream inputStream = getContentResolver().openInputStream(imageUri)) {{
                 if (inputStream == null) return false;
 
                 //buiding the minIO client
@@ -129,15 +135,11 @@ public class MainActivity extends AppCompatActivity {
                         .endpoint(ENDPOINT)
                         .credentials(ACCESS_KEY, SECRET_KEY)
                         .build();
-
-
-                for(int x = 0; x < objectName.size(); x++)
-                {
                     // uploading the image
                     minioClient.putObject(
                             PutObjectArgs.builder()
                                     .bucket(BUCKET_NAME)
-                                    .object(objectName.get(x))
+                                    .object(objectName)
                                     .stream(inputStream, inputStream.available(), -1)
                                     .contentType("image/jpeg") // Adjust content type if necessary
                                     .build()
