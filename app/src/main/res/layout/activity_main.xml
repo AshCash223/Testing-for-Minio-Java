@@ -62,7 +62,8 @@
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-            android:text="Display QR" />
+            android:text="Display QR"
+            android:onClick="onclickDisplay"/>
     </LinearLayout>
 
     <!-- Bottom Section -->

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -36,7 +37,6 @@ public class Settings extends AppCompatActivity {
 
     }
 
-
     public void addBucketSettings(View view) {
     }
 
@@ -48,22 +48,33 @@ public class Settings extends AppCompatActivity {
         EditText accessKey = (EditText) findViewById(R.id.accesskeyField);
         EditText secretKey = findViewById(R.id.secretskeyField);
         EditText endPoint = findViewById(R.id.endpointField);
+        RadioButton rb1 = findViewById(R.id.b1);
+        RadioButton rb2 = findViewById(R.id.b2);
 
         String accesskey = accessKey.getText().toString();
         String secretkey = secretKey.getText().toString();
         String endpoint = endPoint.getText().toString();
+        String radioText = "";
+
+        boolean isRb1Selected = rb1.isChecked();
+        boolean isRb2Selected = rb2.isChecked();
+
+        if(isRb1Selected){
+            radioText = rb1.getText().toString();
+        } else if (isRb2Selected) {
+            radioText = rb2.getText().toString();
+        }
 
         String Url = "https://" + accesskey + ":" + secretkey + endpoint + "/";
 
         if (endpoint.contains("exaba")){
-            Intent swap = new Intent(Settings.this, QrActivity.class);
+            Intent swap = new Intent(Settings.this, MainActivity.class);
             swap.putExtra("drawableURL", Url);
+            swap.putExtra("radioText", radioText);
             startActivity(swap);
         } else {
             Toast.makeText(Settings.this, "If you are not using an exaba end point, we suggest a different app.", Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
 }
