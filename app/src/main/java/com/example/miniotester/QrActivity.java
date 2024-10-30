@@ -1,9 +1,11 @@
 package com.example.miniotester;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +28,12 @@ public class QrActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        Intent intent =  getIntent();
+        String Url = intent.getStringExtra("drawableURL");
+        Drawable d = LoadImageFromWebOperations(Url);
+        ImageView iv = findViewById(R.id.qrimage);
+        iv.setImageDrawable(d);
+
     }
 
 

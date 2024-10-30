@@ -1,9 +1,11 @@
 package com.example.miniotester;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -22,6 +24,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -83,22 +86,22 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri imageUri = data.getData();
-            String objectName = getFileName(imageUri);
+            ArrayList<String> objectName = getFileName(imageUri);
             new MinioUploadTask(imageUri, objectName).execute();
         }
     }
     //this method gets the file name that was uploaded
-    private String getFileName(Uri uri) {
-        String fileName = "uploaded_image";
+    private ArrayList<String> getFileName(Uri uri) {
+        ArrayList<String> files = new ArrayList<>();
         try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 if (nameIndex != -1) {
-                    fileName = cursor.getString(nameIndex);
+                    files.add(cursor.getString(nameIndex));
                 }
             }
         }
-        return fileName;
+        return files;
     }
 
 
@@ -107,10 +110,10 @@ public class MainActivity extends AppCompatActivity {
 
         //declaring variables to hold important values
         private final Uri imageUri;
-        private final String objectName;
+        private final ArrayList<String> objectName;
 
         //this constructor initialises the image and the object names
-        public MinioUploadTask(Uri imageUri, String objectName) {
+        public MinioUploadTask(Uri imageUri, ArrayList<String> objectName) {
             this.imageUri = imageUri;
             this.objectName = objectName;
         }
@@ -127,15 +130,20 @@ public class MainActivity extends AppCompatActivity {
                         .credentials(ACCESS_KEY, SECRET_KEY)
                         .build();
 
-                // uploading the image
-                minioClient.putObject(
-                        PutObjectArgs.builder()
-                                .bucket(BUCKET_NAME)
-                                .object(objectName)
-                                .stream(inputStream, inputStream.available(), -1)
-                                .contentType("image/jpeg") // Adjust content type if necessary
-                                .build()
-                );
+
+                for(int x = 0; x < objectName.size(); x++)
+                {
+                    // uploading the image
+                    minioClient.putObject(
+                            PutObjectArgs.builder()
+                                    .bucket(BUCKET_NAME)
+                                    .object(objectName.get(x))
+                                    .stream(inputStream, inputStream.available(), -1)
+                                    .contentType("image/jpeg") // Adjust content type if necessary
+                                    .build()
+                    );
+                }
+
 
                 Log.d(TAG, "Image uploaded successfully: " + objectName);
                 return true;
