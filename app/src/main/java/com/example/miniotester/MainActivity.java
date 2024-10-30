@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     //variable to hold to private access key
     private static final String SECRET_KEY = "IeQWblMFbQ3RjAjEBMCIOqwSSbYgs2PdMicxwGjR";
     //variable to the name of the bucket selected
-    private static final String BUCKET_NAME = "test";
+    private static String BUCKET_NAME = "";
     //variable for image selection process
     private static final int PICK_IMAGE_REQUEST = 1;
 
@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             openFilePicker();
         });
 
+        BUCKET_NAME = getIntent().getStringExtra("radioText");
     }
     public void onClickSettings(View view) {
         Intent intent = new Intent(MainActivity.this, Settings.class);
@@ -108,6 +109,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return file;
+    }
+
+    public void onclickDisplay(View view) {
+        // Get the URL from the intent
+        String Url = getIntent().getStringExtra("drawableURL");
+        if (Url == null) {
+            Log.e(TAG, "URL is null");
+        }
+        Intent swap = new Intent(MainActivity.this, QrActivity.class);
+        swap.putExtra("drawableURL", Url);
+        startActivity(swap);
     }
 
 
