@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
@@ -85,12 +86,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getClipData() != null) {
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && (data.getClipData() != null || data.getData() != null)) {
 
-            ClipData filess = data.getClipData();
-            for(int x = 0; x< filess.getItemCount(); x++)
+
+            if(data.getClipData() != null)
             {
-                Uri imageUri = filess.getItemAt(x).getUri();
+                ClipData filess = data.getClipData();
+                for(int x = 0; x < filess.getItemCount(); x++)
+                {
+                    Uri imageUri = filess.getItemAt(x).getUri();
+                    String objectName = getFileName(imageUri);
+                    new MinioUploadTask(imageUri, objectName).execute();
+                }
+            }
+            else
+            {
+                Uri imageUri = data.getData();
                 String objectName = getFileName(imageUri);
                 new MinioUploadTask(imageUri, objectName).execute();
             }
@@ -108,6 +119,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return file;
+    }
+
+    public void getAllPhotos()
+    {
+
     }
 
 
