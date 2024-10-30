@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,18 +45,25 @@ public class Settings extends AppCompatActivity {
 
     public void updateKeys(View view)
     {
-        EditText  accessKey = (EditText) findViewById(R.id.accesskeyField);
+        EditText accessKey = (EditText) findViewById(R.id.accesskeyField);
         EditText secretKey = findViewById(R.id.secretskeyField);
+        EditText endPoint = findViewById(R.id.endpointField);
 
         String accesskey = accessKey.getText().toString();
         String secretkey = secretKey.getText().toString();
+        String endpoint = endPoint.getText().toString();
 
-        String Url = "https://" + accesskey + ":" + secretkey + "@z4-n1.dv.exaba.io:9000" + "/";
+        String Url = "https://" + accesskey + ":" + secretkey + endpoint + "/";
+
+        if (endpoint.contains("exaba")){
+            Intent swap = new Intent(Settings.this, QrActivity.class);
+            swap.putExtra("drawableURL", Url);
+            startActivity(swap);
+        } else {
+            Toast.makeText(Settings.this, "If you are not using an exaba end point, we suggest a different app.", Toast.LENGTH_SHORT).show();
+        }
 
 
-        Intent swap = new Intent(Settings.this, QrActivity.class);
-        swap.putExtra("drawableURL", Url);
-        startActivity(swap);
     }
 
 }

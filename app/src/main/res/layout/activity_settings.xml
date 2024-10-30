@@ -102,6 +102,13 @@
             android:text="Please input your secrets key"
             android:layout_weight="5"
             />
+        <EditText
+            android:id="@+id/endpointField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Please input your endpoint"
+            android:layout_weight="5"
+            />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
