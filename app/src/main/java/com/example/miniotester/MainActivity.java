@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, Settings.class);
         //starting the activity with the intent
         startActivity(intent);
-
     }
     //method that runs the file manager
     private void openFilePicker() {
